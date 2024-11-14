@@ -6,29 +6,45 @@
         <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
     </head>
 <body>
-  <h1>Bem-vindo ao Gerenciamento de Professores!</h1>
-  <p>Aguarde enquanto verificamos se você já pode acessar os dados dos professores!</p>
+  <h1>Bem-vindo ao Gerenciamento de Imoveis!</h1>
+  <p>Aguarde enquanto verificamos se você já pode acessar os dados dos imóveis!</p>
 
   <script>
-var token = localStorage.getItem('token');
-if (!token) {
-	window.location.replace("/html/login.html");
-}
-var url = "/hello"
-var xhr = new XMLHttpRequest();
+    var token = localStorage.getItem('token');
+    
+    // Se não houver token, redireciona para login
+    if (!token) {
+        window.location.replace("/html/login.html");
+    }
+    
+    var url = "/hello";
+    var xhr = new XMLHttpRequest();
 
-xhr.open('GET', url, true);
-xhr.setRequestHeader("Authorization", "Bearer " + token);
-xhr.addEventListener('load', function() {
-	if (this.responseText == 'hi') {
-		window.location.replace("/html/professores.html");
-	}
-	else {
-		window.location.replace("/html/login.html");
-	}
-});
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader("Authorization", "Bearer " + token);
 
-xhr.send(null);
+    // Quando a requisição for concluída
+    xhr.addEventListener('load', function() {
+        if (this.status === 200) {
+            if (this.responseText === 'hi') {
+                window.location.replace("/html/imoveis.html");
+            } else {
+                window.location.replace("/html/login.html");
+            }
+        } else {
+            // Se a resposta não for 200 (erro do servidor ou algo inesperado)
+            console.error("Erro na requisição:", this.status, this.statusText);
+            window.location.replace("/html/login.html");
+        }
+    });
+
+    // Tratar erros de rede
+    xhr.addEventListener('error', function() {
+        console.error("Erro de rede ao tentar se comunicar com o servidor.");
+        window.location.replace("/html/login.html");
+    });
+
+    xhr.send(null);
   </script>
 </body>
 </html>

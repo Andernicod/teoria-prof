@@ -1,28 +1,153 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Login</title>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
-    </head>
+<html lang="pt-BR">
+<head>
+    <title>Imóveis - Login</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style_login.css" type="text/css">
+    <link rel="icon" href="https://cdn-icons-png.freepik.com/256/4056/4056445.png?semt=ais_hybrid" type="image/png">
+</head>
 <body>
-  <h1>Login</h1>
-  <div class="input">
-  	<table>
-    	<tr>
-    		<td><label for="username">user name:</label></td>
-    		<td><input id="username"></td>
-    	</tr>
-    	<tr>
-    		<td><label for="password">password:</label></td>
-    		<td><input type="password" id="password"></td>
-    	</tr>
-    	<tr><td></td><td><button onclick="getToken()">login</button></td></tr>
-    	<tr><td></td><td><a href="cadastro.html">Criar novo usuário</a></td></tr>
-    </table>
-  </div>
-  <div id="message"></div>
+    <div class="background">
+        <div class="container">
+            <h1>Gerenciamento de Imóveis</h1>
+            
+            <!-- Formulário de Login -->
+            <div class="form-container login-container">
+                <h2>Login</h2>
+                <p id="mensagemLogin" class="error-message"></p>
+                <form id="formLogin">
+                    <input type="text" id="usernameLogin" placeholder="Usuário" required>
+                    <input type="password" id="passwordLogin" placeholder="Senha" required>
+                    <input type="submit" value="Login">
+                </form>
+                <p class="toggle-link" onclick="toggleForms()">Não sou cadastrado? Clique aqui</p>
+            </div>
 
-  <script src="/js/jwt-vanilla.js"></script>
+            <!-- Formulário de Registro -->
+            <div class="form-container register-container hidden">
+                <h2>Registro</h2>
+                <p id="mensagemRegistro" class="error-message"></p>
+                <form id="formRegistro">
+                    <input type="text" id="nomeRegistro" placeholder="Nome" required>
+                    <input type="text" id="sobrenomeRegistro" placeholder="Sobrenome" required>
+                    <input type="email" id="emailRegistro" placeholder="E-mail" required>
+                    <input type="text" id="usernameRegistro" placeholder="Usuário" required>
+                    <input type="password" id="passwordRegistro" placeholder="Senha" required>
+                    <input type="submit" value="Registrar">
+                </form>
+                <p class="toggle-link" onclick="toggleForms()">Já sou cadastrado? Clique aqui</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Envio do formulário de login
+        document.getElementById('formLogin').onsubmit = function(event) {
+            event.preventDefault();
+
+            var user = document.getElementById('usernameLogin').value.trim();
+            var password = document.getElementById('passwordLogin').value.trim();
+
+            if (!user || !password) {
+                document.getElementById('mensagemLogin').innerText = "Por favor, preencha todos os campos!";
+                return;
+            }
+
+            var loginUrl = "/authenticate"; // Verifique o endpoint correto da sua API para autenticação
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', loginUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+            xhr.onload = function() {
+                var responseObject;
+                try {
+                    responseObject = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    responseObject = xhr.responseText;
+                }
+
+                console.log("Login response:", responseObject);
+
+                if (xhr.status === 200 && responseObject.token) {
+                    // Armazenar o token e o nome do usuário no localStorage
+                    localStorage.setItem('token', responseObject.token);
+                    localStorage.setItem('userName', user);  // Armazenando nome do usuário com base no placeholder
+                    
+                    // Exibir mensagem de sucesso
+                    document.getElementById('mensagemLogin').innerText = "Bem-vindo, " + user + "!";
+                    setTimeout(function() {
+                        window.location.replace("/html/imoveis.html");
+                    }, 1000);  // Espera 1 segundo para redirecionar
+                } else {
+                    document.getElementById('mensagemLogin').innerText = "" + JSON.stringify(responseObject);
+                }
+            };
+
+            var sendObject = JSON.stringify({ username: user, password: password });
+            console.log("Sending login data:", sendObject);
+            xhr.send(sendObject);
+        };
+
+        // Envio do formulário de registro
+        document.getElementById('formRegistro').onsubmit = function(event) {
+            event.preventDefault();
+
+            var nome = document.getElementById('nomeRegistro').value.trim();
+            var sobrenome = document.getElementById('sobrenomeRegistro').value.trim();
+            var email = document.getElementById('emailRegistro').value.trim();
+            var username = document.getElementById('usernameRegistro').value.trim();
+            var password = document.getElementById('passwordRegistro').value.trim();
+
+            if (!nome || !sobrenome || !email || !username || !password) {
+                document.getElementById('mensagemRegistro').innerText = "Por favor, preencha todos os campos!";
+                return;
+            }
+
+            var registerUrl = "/register";  // Verifique o endpoint correto da sua API para registro
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', registerUrl, true);
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+            xhr.onload = function() {
+                var responseObject;
+                try {
+                    responseObject = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    responseObject = xhr.responseText;
+                }
+
+                console.log("Registro response:", responseObject);
+
+                if (xhr.status === 200 && responseObject.success) {
+                    alert("Registro realizado com sucesso! Agora você pode fazer login.");
+                    toggleForms();  // Alterna para o formulário de login
+                } else {
+                    document.getElementById('mensagemRegistro').innerText = "" + JSON.stringify(responseObject);
+                }
+            };
+
+            var sendObject = JSON.stringify({
+                nome: nome,
+                sobrenome: sobrenome,
+                email: email,
+                username: username,
+                password: password
+            });
+
+            console.log("Sending registration data:", sendObject);
+            xhr.send(sendObject);
+        };
+
+        // Função para alternar entre os formulários de login e registro
+        function toggleForms() {
+            var loginForm = document.querySelector('.login-container');
+            var registerForm = document.querySelector('.register-container');
+
+            loginForm.classList.toggle('hidden');
+            registerForm.classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>

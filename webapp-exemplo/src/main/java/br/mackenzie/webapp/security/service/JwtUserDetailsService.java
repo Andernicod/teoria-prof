@@ -33,10 +33,17 @@ public class JwtUserDetailsService implements UserDetailsService {
 				new ArrayList<>());
 	}
 	
-	public DAOUser save(UserDTO user) {
+	public DAOUser save(UserDTO userDTO) {
 		DAOUser newUser = new DAOUser();
-		newUser.setUsername(user.getUsername());
-		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+		newUser.setUsername(userDTO.getUsername());
+		newUser.setPassword(bcryptEncoder.encode(userDTO.getPassword()));
+		newUser.setNome(userDTO.getNome());
+		newUser.setSobrenome(userDTO.getSobrenome());
+		newUser.setEmail(userDTO.getEmail());
 		return userDao.save(newUser);
+	}
+
+	public DAOUser findByUsername(String username) {
+		return userDao.findByUsername(username);
 	}
 }

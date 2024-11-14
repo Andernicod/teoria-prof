@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Imóveis</title>
+    <link rel="stylesheet" href="style_imoveis.css" type="text/css">
+    <link rel="icon" href="https://cdn-icons-png.freepik.com/256/4056/4056445.png?semt=ais_hybrid" type="image/png">
+</head>
+<body>
+    <div id="error-message" class="error-popup" style="display: none;">
+        <span id="close-error" class="close-error">&times;</span>
+        <strong>Erro:</strong> <span id="error-text"></span>
+    </div>
+    <div class="container">
+        <h1>Lista de Imóveis</h1>
+        <div class="user-info">
+            <h2 id="userName">Bem-vindo, <span id="userDisplayName">Usuário</span>!</h2>
+        </div>
+        <button id="logout">Sair</button>
+
+        <div class="search-container">
+            <input type="text" id="searchImovel" placeholder="Pesquisar por título ou endereço" required>
+            <button id="searchButton">Buscar</button>
+        </div>
+
+        <h2>Adicionar Novo Imóvel</h2>
+        <button id="showAddForm">Adicionar Imóvel</button>
+        <form id="formAdicionarImovel" class="form" style="display: none;">
+            <input type="text" id="tituloImovel" placeholder="Título do Imóvel" required>
+            <input type="text" id="descricaoImovel" placeholder="Descrição" required>
+            <input type="number" id="precoImovel" placeholder="Preço" required>
+            <input type="url" id="fotoImovel" placeholder="URL da Foto" required>
+            <select id="tipoImovel" required>
+                <option value="" disabled selected>Selecione o tipo de imóvel</option>
+                <option value="venda">Venda</option>
+                <option value="aluguel">Aluguel</option>
+            </select>
+            <input type="text" id="ruaImovel" placeholder="Rua" required>
+            <input type="text" id="numeroImovel" placeholder="Número" required>
+            <input type="text" id="cidadeImovel" placeholder="Cidade" required>
+            <input type="text" id="estadoImovel" placeholder="Estado" required>
+            <input type="text" id="cepImovel" placeholder="CEP" required>
+            <input type="submit" value="Adicionar Imóvel">
+            <button type="button" id="cancelAdd">Cancelar</button>
+        </form>
+
+        <div id="imoveisContainer">
+            <h2>Imóveis Disponíveis</h2>
+            <ul id="imoveisList"></ul>
+        </div>
+        
+        <div id="editModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <h2>Editar Imóvel</h2>
+                <form id="formEditarImovel">
+                    <input type="text" id="tituloImovelEdit" placeholder="Título do Imóvel" required>
+                    <input type="text" id="descricaoImovelEdit" placeholder="Descrição" required>
+                    <input type="number" id="precoImovelEdit" placeholder="Preço" required>
+                    <input type="url" id="fotoImovelEdit" placeholder="URL da Foto" required>
+                    <select id="tipoImovelEdit" required>
+                        <option value="" disabled selected>Selecione o tipo de imóvel</option>
+                        <option value="venda">Venda</option>
+                        <option value="aluguel">Aluguel</option>
+                    </select>
+                    <input type="text" id="ruaImovelEdit" placeholder="Rua" required>
+                    <input type="text" id="numeroImovelEdit" placeholder="Número" required>
+                    <input type="text" id="cidadeImovelEdit" placeholder="Cidade" required>
+                    <input type="text" id="estadoImovelEdit" placeholder="Estado" required>
+                    <input type="text" id="cepImovelEdit" placeholder="CEP" required>
+                    <input type="submit" value="Salvar Alterações">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="rest.js"></script>
+    <script>
+        window.onload = function() {
+            // Verificar se o token está presente
+            var token = localStorage.getItem('token');
+            if (!token) {
+                window.location.replace("/html/login.html");
+            }
+
+            // Exibir nome do usuário
+            var userName = localStorage.getItem('userName'); // Recupera o nome do usuário
+            if (userName) {
+                document.getElementById('userDisplayName').innerText = userName;
+            } else {
+                document.getElementById('userDisplayName').innerText = 'Usuário não encontrado';
+            }
+
+            // Logout
+            document.getElementById('logout').onclick = function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userName');
+                window.location.replace("/html/login.html");
+            };
+        };
+
+        // Mostrar e esconder o formulário de adicionar imóvel
+        document.getElementById('showAddForm').onclick = () => {
+            const form = document.getElementById('formAdicionarImovel');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        };
+
+        // Cancelar a adição de imóvel
+        document.getElementById('cancelAdd').onclick = () => {
+            document.getElementById('formAdicionarImovel').reset();
+            document.getElementById('formAdicionarImovel').style.display = 'none';
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    overflow: hidden;
+    background: url('https://www.zapimoveis.com.br/blog/wp-content/uploads/2024/04/aluguel-intencao-compra.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    min-height: 50vh;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+h1 {
+    font-size: 2.2em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+h2 {
+    font-size: 1.3em;
+    color: #555;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="submit"] {
+    width: 100%;
+    padding: 14px;
+    margin: 12px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    border-color: #5cb85c;
+    box-shadow: 0 0 8px rgba(92, 184, 92, 0.6);
+}
+
+input[type="submit"] {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #4cae4c;
+}
+
+input[type="submit"]:active {
+    background-color: #398439;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 12px;
+    font-size: 0.9em;
+}
+
+.toggle-link {
+    color: #007bff;
+    font-size: 1em;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: color 0.3s ease;
+}
+
+.toggle-link:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.login-container,
+.register-container {
+    overflow-y: auto;
+    max-height: 50%;
+    padding-right: 8px;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.login-container::-webkit-scrollbar,
+.register-container::-webkit-scrollbar {
+    width: 6px;
+    background-color: transparent;
+}
+
+.login-container::-webkit-scrollbar-thumb,
+.register-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+        max-width: 320px;
+        height: auto;
+        max-height: 80vh;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="submit"] {
+        font-size: 1em;
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    h2 {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 30px;
+        max-width: 400px;
+        height: auto;
+        max-height: 80vh;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="submit"] {
+        font-size: 1em;
+        padding: 14px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    h2 {
+        font-size: 1.2em;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        padding: 40px;
+        max-width: 450px;
+    }
+}
