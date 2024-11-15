@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import br.mackenzie.webapp.security.dao.UserDao;
+import br.mackenzie.webapp.security.model.DAOUser;
+import br.mackenzie.webapp.security.model.UserDTO;
+
 @RestController
 @RequestMapping("/api/imoveis")
 class ImovelController {
@@ -39,24 +43,53 @@ class ImovelController {
         return imovelRepo.findById(id);
     }
 
+    @Autowired
+    private UserDao userDao; // Repositório de usuários
+
     @PostMapping
     Imovel createImovel(@RequestBody Imovel imovel) {
+        String usernameLogado = imovel.getUsuario().getUsername();
+        DAOUser usuario = userDao.findByUsername(usernameLogado);
+        imovel.setUsuario(usuario);
         Imovel createdImovel = imovelRepo.save(imovel);
         return createdImovel;
     }
 
     @PutMapping("/{imovelId}")
-    Optional<Imovel> updateImovel(@RequestBody Imovel imovelRequest, @PathVariable long imovelId) {
-        Optional<Imovel> opt = imovelRepo.findById(imovelId);
-        if (opt.isPresent()) {
-            if (imovelRequest.getId().equals(imovelId)) {
-                imovelRepo.save(imovelRequest);
-                return opt;
+Imovel updateImovel(@RequestBody Imovel imovelRequest, @PathVariable long imovelId) {
+    // Busca o imóvel existente pelo ID
+    Optional<Imovel> existingImovel = imovelRepo.findById(imovelId);
+    if (existingImovel.isPresent()) {
+        Imovel imovel = existingImovel.get();
+
+        // Atualiza os dados do imóvel existente com os dados do request
+        imovel.setTitulo(imovelRequest.getTitulo());
+        imovel.setDescricao(imovelRequest.getDescricao());
+        imovel.setPreco(imovelRequest.getPreco());
+        imovel.setFoto(imovelRequest.getFoto());
+        imovel.setTipo(imovelRequest.getTipo());
+        imovel.setRua(imovelRequest.getRua());
+        imovel.setNumero(imovelRequest.getNumero());
+        imovel.setCidade(imovelRequest.getCidade());
+        imovel.setEstado(imovelRequest.getEstado());
+        imovel.setCep(imovelRequest.getCep());
+
+        // Valida e associa o usuário, se necessário
+        if (imovelRequest.getUsuario() != null && imovelRequest.getUsuario().getUsername() != null) {
+            DAOUser usuario = userDao.findByUsername(imovelRequest.getUsuario().getUsername());
+            if (usuario == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado.");
             }
+            imovel.setUsuario(usuario);
         }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                "Erro ao alterar dados do imóvel com id " + imovelId);
+
+        // Salva as alterações
+        return imovelRepo.save(imovel);
     }
+
+    // Retorna erro se o imóvel não for encontrado
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Imóvel com ID " + imovelId + " não encontrado.");
+}
 
     @DeleteMapping("/{id}")
     void deleteImovel(@PathVariable long id) {

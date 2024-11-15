@@ -76,39 +76,19 @@
 
     <script src="rest.js"></script>
     <script>
-        window.onload = function() {
-            // Verificar se o token está presente
-            var token = localStorage.getItem('token');
-            if (!token) {
-                window.location.replace("/html/login.html");
-            }
-
-            // Exibir nome do usuário
-            var userName = localStorage.getItem('userName'); // Recupera o nome do usuário
-            if (userName) {
-                document.getElementById('userDisplayName').innerText = userName;
-            } else {
-                document.getElementById('userDisplayName').innerText = 'Usuário não encontrado';
-            }
-
-            // Logout
-            document.getElementById('logout').onclick = function() {
-                localStorage.removeItem('token');
-                localStorage.removeItem('userName');
-                window.location.replace("/html/login.html");
-            };
-        };
-
-        // Mostrar e esconder o formulário de adicionar imóvel
         document.getElementById('showAddForm').onclick = () => {
             const form = document.getElementById('formAdicionarImovel');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
         };
 
-        // Cancelar a adição de imóvel
         document.getElementById('cancelAdd').onclick = () => {
             document.getElementById('formAdicionarImovel').reset();
             document.getElementById('formAdicionarImovel').style.display = 'none';
+        };
+
+        document.getElementById('closeModal').onclick = () => {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('formEditarImovel').reset();
         };
     </script>
 </body>
