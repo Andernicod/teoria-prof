@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import br.mackenzie.webapp.security.dao.UserDao;
 import br.mackenzie.webapp.security.model.DAOUser;
@@ -47,22 +50,42 @@ class ImovelController {
     private UserDao userDao; // Repositório de usuários
 
     @PostMapping
-    Imovel createImovel(@RequestBody Imovel imovel) {
-        String usernameLogado = imovel.getUsuario().getUsername();
-        DAOUser usuario = userDao.findByUsername(usernameLogado);
-        imovel.setUsuario(usuario);
-        Imovel createdImovel = imovelRepo.save(imovel);
-        return createdImovel;
+public Imovel createImovel(@RequestBody Imovel imovel) {
+    // Obtendo o usuário logado a partir do contexto de segurança
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String username = authentication.getName(); // Nome de usuário do usuário logado
+    
+    // Verificando se o usuário existe no banco de dados
+    DAOUser usuario = userDao.findByUsername(username);
+    if (usuario == null) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado.");
     }
 
-    @PutMapping("/{imovelId}")
-Imovel updateImovel(@RequestBody Imovel imovelRequest, @PathVariable long imovelId) {
-    // Busca o imóvel existente pelo ID
+    // Associando o usuário ao imóvel
+    imovel.setUsuario(usuario);
+
+    // Salvando o imóvel no banco
+    return imovelRepo.save(imovel);
+}
+
+@PutMapping("/{imovelId}")
+public Imovel updateImovel(@RequestBody Imovel imovelRequest, @PathVariable long imovelId) {
+    // Obtendo o usuário logado
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String username = authentication.getName();
+    DAOUser usuarioLogado = userDao.findByUsername(username);
+
+    // Buscando o imóvel pelo ID
     Optional<Imovel> existingImovel = imovelRepo.findById(imovelId);
     if (existingImovel.isPresent()) {
         Imovel imovel = existingImovel.get();
 
-        // Atualiza os dados do imóvel existente com os dados do request
+        // Verificando se o imóvel pertence ao usuário logado
+        if (!imovel.getUsuario().getUsername().equals(username)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para editar este imóvel.");
+        }
+
+        // Atualizando as informações do imóvel
         imovel.setTitulo(imovelRequest.getTitulo());
         imovel.setDescricao(imovelRequest.getDescricao());
         imovel.setPreco(imovelRequest.getPreco());
@@ -74,25 +97,32 @@ Imovel updateImovel(@RequestBody Imovel imovelRequest, @PathVariable long imovel
         imovel.setEstado(imovelRequest.getEstado());
         imovel.setCep(imovelRequest.getCep());
 
-        // Valida e associa o usuário, se necessário
-        if (imovelRequest.getUsuario() != null && imovelRequest.getUsuario().getUsername() != null) {
-            DAOUser usuario = userDao.findByUsername(imovelRequest.getUsuario().getUsername());
-            if (usuario == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado.");
-            }
-            imovel.setUsuario(usuario);
-        }
-
-        // Salva as alterações
         return imovelRepo.save(imovel);
     }
 
-    // Retorna erro se o imóvel não for encontrado
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Imóvel com ID " + imovelId + " não encontrado.");
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Imóvel não encontrado.");
 }
 
-    @DeleteMapping("/{id}")
-    void deleteImovel(@PathVariable long id) {
-        imovelRepo.deleteById(id);
+@DeleteMapping("/{id}")
+public void deleteImovel(@PathVariable long id) {
+    // Obtendo o usuário logado
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String username = authentication.getName();
+    DAOUser usuarioLogado = userDao.findByUsername(username);
+
+    // Buscando o imóvel pelo ID
+    Optional<Imovel> imovelOptional = imovelRepo.findById(id);
+    if (imovelOptional.isPresent()) {
+        Imovel imovel = imovelOptional.get();
+
+        // Verificando se o imóvel pertence ao usuário logado
+        if (!imovel.getUsuario().getUsername().equals(username)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para excluir este imóvel.");
+        }
+
+        imovelRepo.delete(imovel);
+    } else {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Imóvel não encontrado.");
     }
+}
 }

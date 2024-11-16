@@ -43,8 +43,10 @@ async function carregarImoveis(query = '') {
                         <span>${imovel.rua}, ${imovel.numero} - ${imovel.cidade}, ${imovel.estado} - CEP: ${imovel.cep}</span>
                     </div>
                     <div id="botoes-ED">
-                        <button class="edit" onclick="editarImovel(${imovel.id})">Editar</button>
-                        <button class="delete" onclick="excluirImovel(${imovel.id})">Excluir</button>
+                        ${imovel.usuario.username === user ? `
+                            <button class="edit" onclick="editarImovel(${imovel.id})">Editar</button>
+                            <button class="delete" onclick="excluirImovel(${imovel.id})">Excluir</button>
+                        ` : ''}
                     </div>
                 `;
                 imoveisList.appendChild(li);
@@ -275,7 +277,6 @@ function obterDadosImovel() {
         cidade: document.getElementById('cidadeImovel').value,
         estado: document.getElementById('estadoImovel').value,
         cep: document.getElementById('cepImovel').value,
-        usuario: localStorage.getItem('usuarioLogado')
     };
 }
 
@@ -291,7 +292,6 @@ function obterDadosImovelEdit() {
         cidade: document.getElementById('cidadeImovelEdit').value,
         estado: document.getElementById('estadoImovelEdit').value,
         cep: document.getElementById('cepImovelEdit').value,
-        usuario: localStorage.getItem('usuarioLogado')
     };
 }
 
@@ -306,6 +306,7 @@ function preencherFormulario(imovel) {
     document.getElementById('cidadeImovel').value = imovel.cidade;
     document.getElementById('estadoImovel').value = imovel.estado;
     document.getElementById('cepImovel').value = imovel.cep;
+    document.getElementById('usuarioImovel').value = imovel.usuario;
 }
 
 if (editModal) {
