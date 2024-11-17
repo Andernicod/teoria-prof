@@ -13,6 +13,8 @@ const editModal = document.getElementById('editModal');
 const token = localStorage.getItem('token');
 let user = localStorage.getItem("userName");
 
+let imoveisCarregados = []; // Variável para armazenar os imóveis carregados
+
 async function carregarImoveis(query = '') {
     try {
         // Condicionalmente adicionar o token de autorização, caso o usuário esteja logado
@@ -20,7 +22,6 @@ async function carregarImoveis(query = '') {
             'Content-Type': 'application/json',
         };
 
-        // Se o token estiver presente, adiciona no cabeçalho
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
@@ -35,32 +36,10 @@ async function carregarImoveis(query = '') {
         }
 
         const imoveis = await response.json();
+        imoveisCarregados = imoveis; // Armazena os imóveis carregados
+
         if (Array.isArray(imoveis)) {
-            imoveisList.innerHTML = '';
-            if (imoveis.length === 0) {
-                imoveisList.innerHTML = '<li>Nenhum imóvel encontrado.</li>';
-            }
-            imoveis.forEach(imovel => {
-                const li = document.createElement('li');
-                li.classList.add('imovel');
-                li.innerHTML = `
-                    <img src="${imovel.foto}" alt="${imovel.titulo}">
-                    <div class="imovel-details">
-                        <strong>${imovel.titulo}</strong><br>
-                        <span>${imovel.descricao}</span><br>
-                        <span>R$ ${imovel.preco}</span><br>
-                        <span><em>${imovel.tipo === 'venda' ? 'Para Venda' : 'Para Aluguel'}</em></span><br>
-                        <span>${imovel.rua}, ${imovel.numero} - ${imovel.cidade}, ${imovel.estado} - CEP: ${imovel.cep}</span>
-                    </div>
-                    <div id="botoes-ED">
-                        ${imovel.usuario.username === user ? ` 
-                            <button class="edit" onclick="editarImovel(${imovel.id})">Editar</button>
-                            <button class="delete" onclick="excluirImovel(${imovel.id})">Excluir</button>
-                        ` : ''}
-                    </div>
-                `;
-                imoveisList.appendChild(li);
-            });
+            exibirImoveis(imoveis); // Exibe os imóveis carregados na tela
         } else {
             throw new Error('Erro: A resposta não é uma lista de imóveis.');
         }
@@ -130,10 +109,51 @@ if (formAdicionarImovel) {
     };
 }
 
+function exibirImoveis(imoveis) {
+    imoveisList.innerHTML = ''; // Limpa a lista de imóveis na tela
+    if (imoveis.length === 0) {
+        imoveisList.innerHTML = '<li>Nenhum imóvel encontrado.</li>';
+    } else {
+        imoveis.forEach(imovel => {
+            const li = document.createElement('li');
+            li.classList.add('imovel');
+            li.innerHTML = `
+                <img src="${imovel.foto}" alt="${imovel.titulo}">
+                <div class="imovel-details">
+                    <strong>${imovel.titulo}</strong><br>
+                    <span>${imovel.descricao}</span><br>
+                    <span>R$ ${imovel.preco}</span><br>
+                    <span><em>${imovel.tipo === 'venda' ? 'Para Venda' : 'Para Aluguel'}</em></span><br>
+                    <span>${imovel.rua}, ${imovel.numero} - ${imovel.cidade}, ${imovel.estado} - CEP: ${imovel.cep}</span>
+                </div>
+                <div id="botoes-ED">
+                    ${imovel.usuario.username === user ? `
+                        <button class="edit" onclick="editarImovel(${imovel.id})">Editar</button>
+                        <button class="delete" onclick="excluirImovel(${imovel.id})">Excluir</button>
+                    ` : ''}
+                </div>
+            `;
+            imoveisList.appendChild(li);
+        });
+    }
+}
+
+// Alterar a função do botão de pesquisa
 if (searchButton) {
     searchButton.onclick = () => {
-        const query = searchInput.value.trim();
-        carregarImoveis(query);
+        const query = searchInput.value.trim().toLowerCase();
+        
+        // Filtra os imóveis carregados com base no texto da pesquisa
+        const imoveisFiltrados = imoveisCarregados.filter(imovel => {
+            return imovel.titulo.toLowerCase().includes(query) ||
+                   imovel.descricao.toLowerCase().includes(query) ||
+                   imovel.rua.toLowerCase().includes(query) ||
+                   imovel.cidade.toLowerCase().includes(query) ||
+                   imovel.estado.toLowerCase().includes(query);
+        });
+
+        // Exibe os imóveis filtrados
+        exibirImoveis(imoveisFiltrados);
     };
 }
 
