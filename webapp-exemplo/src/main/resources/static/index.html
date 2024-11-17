@@ -12,11 +12,6 @@
   <script>
     var token = localStorage.getItem('token');
     
-    // Se não houver token, redireciona para login
-    if (!token) {
-        window.location.replace("/html/login.html");
-    }
-    
     var url = "/hello";
     var xhr = new XMLHttpRequest();
 
@@ -29,19 +24,19 @@
             if (this.responseText === 'hi') {
                 window.location.replace("/html/imoveis.html");
             } else {
-                window.location.replace("/html/login.html");
+                window.location.replace("/html/imoveis.html");
             }
         } else {
             // Se a resposta não for 200 (erro do servidor ou algo inesperado)
             console.error("Erro na requisição:", this.status, this.statusText);
-            window.location.replace("/html/login.html");
+            window.location.replace("/html/imoveis.html");
         }
     });
 
     // Tratar erros de rede
     xhr.addEventListener('error', function() {
         console.error("Erro de rede ao tentar se comunicar com o servidor.");
-        window.location.replace("/html/login.html");
+        window.location.replace("/html/imoveis.html");
     });
 
     xhr.send(null);

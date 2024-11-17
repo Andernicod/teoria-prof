@@ -14,9 +14,9 @@
     <div class="container">
         <h1>Lista de Imóveis</h1>
         <div class="user-info">
-            <h2 id="userName">Bem-vindo, <span id="userDisplayName">Usuário</span>!</h2>
+            <h2 id="userName"><span id="userDisplayName">Usuário</span></h2>
         </div>
-        <button id="logout">Sair</button>
+        <button id="loginLogoutBtn">Login</button>
 
         <div class="search-container">
             <input type="text" id="searchImovel" placeholder="Pesquisar por título ou endereço" required>
@@ -76,10 +76,48 @@
 
     <script src="rest.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        carregarImoveis();
+        });
+
         document.getElementById('showAddForm').onclick = () => {
-            const form = document.getElementById('formAdicionarImovel');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        };
+    if (!token) {
+        // Criação do pop-up de login
+        const loginPopUp = document.createElement('div');
+        loginPopUp.classList.add('pop-up-login');
+        loginPopUp.innerHTML = `
+            <div class="pop-up-content">
+                <p>Você precisa estar logado para adicionar um imóvel.</p>
+                <button id="loginAgoraBtn">Login</button>
+                <button id="fecharPopUpBtn" class="close-btn">&times;</button>
+            </div>
+        `;
+        document.body.appendChild(loginPopUp);
+
+        // Adiciona a classe "open" para mostrar o pop-up com animação
+        setTimeout(() => loginPopUp.classList.add('open'), 10);
+
+        // Ações dos botões do pop-up
+        const loginBtn = document.getElementById('loginAgoraBtn');
+        const closeBtn = document.getElementById('fecharPopUpBtn');
+
+        if (loginBtn) {
+            loginBtn.onclick = () => window.location.href = 'login.html';  // Redireciona para login
+        }
+
+        if (closeBtn) {
+            closeBtn.onclick = () => loginPopUp.remove();  // Fecha o pop-up
+        }
+
+        return; // Interrompe a execução caso não tenha token
+    }
+
+    // Alterna a exibição do formulário de adicionar imóvel
+    const form = document.getElementById('formAdicionarImovel');
+    if (form) {
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+    }
+};
 
         document.getElementById('cancelAdd').onclick = () => {
             document.getElementById('formAdicionarImovel').reset();

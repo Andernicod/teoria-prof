@@ -91,12 +91,12 @@ button:hover {
     background-color: #0056b3;
 }
 
-#logout {
+.logout {
     background-color: #dc3545;
     width: 100px;
 }
 
-#logout:hover {
+.logout:hover {
     background-color: #c82333;
 }
 
@@ -341,4 +341,95 @@ form input[type="submit"]:hover {
 
 .close-error:hover {
     color: darkred;
+}
+
+/* Pop-up de Login Moderno */
+.pop-up-login {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);  /* Fundo mais suave */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);  /* Mais desfoque no fundo */
+    overflow: hidden;
+}
+
+.pop-up-content {
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    width: 400px;  /* Largura fixa */
+    max-width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);  /* Sombra suave */
+    transform: scale(0.9);  /* Começa reduzido */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;  /* Inicialmente invisível */
+    position: relative;  /* Para o botão de fechar */
+}
+
+.pop-up-login.open .pop-up-content {
+    transform: scale(1);  /* Expande o pop-up */
+    opacity: 1;  /* Torna o pop-up visível */
+}
+
+.pop-up-content p {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.pop-up-content button {
+    width: 100%;
+    padding: 12px 0;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pop-up-content button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.pop-up-content button:active {
+    transform: translateY(2px);
+}
+
+/* Estilo Moderno para o X de Fechar */
+.pop-up-content .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #ddd;  /* Cor de fundo mais suave */
+    color: #333;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border: none;
+}
+
+.pop-up-content .close-btn:hover {
+    background-color: #ff5c5c;  /* Cor mais vibrante ao passar o mouse */
+    color: white;  /* Muda a cor para branco */
+}
+
+.pop-up-content .close-btn:active {
+    transform: scale(0.95);  /* Efeito de "pressionar" ao clicar */
 }

@@ -6,24 +6,34 @@ const formRegistro = document.getElementById('formRegistro');
 const mensagemLogin = document.getElementById('mensagemLogin');
 const mensagemRegistro = document.getElementById('mensagemRegistro');
 const searchButton = document.getElementById('searchButton');
+const loginLogoutBtn = document.getElementById('loginLogoutBtn');
 const searchInput = document.getElementById('searchImovel');
 const formEditarImovel = document.getElementById('formEditarImovel');
 const editModal = document.getElementById('editModal');
 const token = localStorage.getItem('token');
-const user = localStorage.getItem('userName');
+let user = localStorage.getItem("userName");
 
 async function carregarImoveis(query = '') {
     try {
+        // Condicionalmente adicionar o token de autorização, caso o usuário esteja logado
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        // Se o token estiver presente, adiciona no cabeçalho
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(`/api/imoveis${query ? `?search=${encodeURIComponent(query)}` : ''}`, {
             method: 'GET',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`  // Adiciona o token no cabeçalho
-            }
+            headers: headers,
         });
+
         if (!response.ok) {
             throw new Error(`Erro na requisição: ${response.statusText}`);
         }
+
         const imoveis = await response.json();
         if (Array.isArray(imoveis)) {
             imoveisList.innerHTML = '';
@@ -43,7 +53,7 @@ async function carregarImoveis(query = '') {
                         <span>${imovel.rua}, ${imovel.numero} - ${imovel.cidade}, ${imovel.estado} - CEP: ${imovel.cep}</span>
                     </div>
                     <div id="botoes-ED">
-                        ${imovel.usuario.username === user ? `
+                        ${imovel.usuario.username === user ? ` 
                             <button class="edit" onclick="editarImovel(${imovel.id})">Editar</button>
                             <button class="delete" onclick="excluirImovel(${imovel.id})">Excluir</button>
                         ` : ''}
@@ -60,18 +70,11 @@ async function carregarImoveis(query = '') {
     }
 }
 
-window.onload = () => {
-    if (!verificarUsuarioLogado()) {
-        window.location.href = 'login.html';
-    } else {
-        carregarImoveis();
-    }
-};
-
 function verificarUsuarioLogado() {
-    const usuarioLogado = localStorage.getItem('token');
-    if (usuarioLogado) {
-        document.getElementById('userDisplayName').textContent = user;
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('userName');
+    if (token && user) {
+        document.getElementById('userDisplayName').textContent = `Bem-vindo(a), ${user}!`;
         return true;
     }
     return false;
@@ -80,6 +83,26 @@ function verificarUsuarioLogado() {
 if (formAdicionarImovel) {
     formAdicionarImovel.onsubmit = async (event) => {
         event.preventDefault();
+
+        // Verifica se o usuário está logado (token presente)
+        if (!token) {
+            const loginPopUp = document.createElement('div');
+            loginPopUp.classList.add('pop-up-login');
+            loginPopUp.innerHTML = `
+                <div class="pop-up-content">
+                    <p>Você precisa estar logado para adicionar um imóvel.</p>
+                    <button id="loginAgoraBtn">Login</button>
+                    <button id="fecharPopUpBtn">Fechar</button>
+                </div>
+            `;
+            document.body.appendChild(loginPopUp);
+
+            // Ações dos botões do pop-up
+            document.getElementById('loginAgoraBtn').onclick = () => window.location.href = 'login.html';
+            document.getElementById('fecharPopUpBtn').onclick = () => loginPopUp.remove();
+            return;
+        }
+
         const imovelData = obterDadosImovel();
         
         try {
@@ -87,7 +110,7 @@ if (formAdicionarImovel) {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Adiciona o token no cabeçalho
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(imovelData),
             });
@@ -98,11 +121,11 @@ if (formAdicionarImovel) {
                 formAdicionarImovel.style.display = 'none';
             } else {
                 const errorText = await response.text();
-                exibirMensagemDeErro('Erro ao adicionar imóvel: ' + errorText); // Exibir erro na tela
+                exibirMensagemDeErro('Erro ao adicionar imóvel: ' + errorText);
             }
         } catch (error) {
             console.error('Erro ao adicionar imóvel:', error);
-            exibirMensagemDeErro('Erro ao adicionar imóvel: ' + error.message); // Exibir erro na tela
+            exibirMensagemDeErro('Erro ao adicionar imóvel: ' + error.message);
         }
     };
 }
@@ -200,12 +223,25 @@ async function excluirImovel(id) {
     }
 }
 
-if (logoutButton) {
-    logoutButton.onclick = () => {
-        localStorage.removeItem('token');
-        window.location.href = 'login.html';
-    };
+let userLoggedIn = localStorage.getItem("token");
+if (userLoggedIn) {
+    loginLogoutBtn.textContent = "Sair";
+    loginLogoutBtn.classList.add('logout');
+    document.getElementById('userDisplayName').textContent = user ? `Bem-vindo(a), ${user}!` : "Usuário";
+} else {
+    loginLogoutBtn.textContent = "Login";
+    document.getElementById('userDisplayName').textContent = "Bem-vindo(a)!";
 }
+loginLogoutBtn.addEventListener("click", function() {
+    const userLoggedIn = localStorage.getItem("token");
+    if (userLoggedIn) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userName");
+        location.reload(); // Recarrega a página após logout
+    } else {
+        window.location.href = "login.html"; // Redireciona para a página de login
+    }
+});
 
 if (formLogin) {
     formLogin.onsubmit = async (event) => {
